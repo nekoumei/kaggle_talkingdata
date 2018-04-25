@@ -52,7 +52,7 @@ def preprocess_baris(df):
 
         print('selcols', selcols, 'QQ', QQ)
 
-        filename = 'X_debug%d.csv' % (i)
+        filename = 'X%d.csv' % (i)
 
         if os.path.exists(filename):
             if QQ == 5:
@@ -100,7 +100,7 @@ def preprocess_baris(df):
     predictors = []
 
     new_feature = 'nextClick'
-    filename = 'nextClick_debag.csv'
+    filename = 'nextClick.csv'
 
     if os.path.exists(filename):
         print('loading from save file')
@@ -235,21 +235,36 @@ def predict(booster):
 
 
 if __name__ == '__main__':
+    debag_mode = False
     if debag_mode:
-    print('[{}]Start:All data preparing'.format(get_now()))
-    print('[{}]Start:read positive'.format(get_now()))
-    positive = pd.read_csv(os.path.join(DATA_DIR, 'train_positive.csv'), parse_dates=['click_time'], nrows=1000)
-    print('[{}]Start:read negative'.format(get_now()))
-    negative = pd.read_csv(os.path.join(DATA_DIR, 'train_negative.csv'), parse_dates=['click_time'], nrows=100000)
-    # negative_sampled = negative.sample(10000000)
-    negative_sampled = negative.copy()
-    del negative
-    gc.collect()
+        print('[{}]Start:Small data preparing(DebagMode)'.format(get_now()))
+        print('[{}]Start:read positive'.format(get_now()))
+        positive = pd.read_csv(os.path.join(DATA_DIR, 'train_positive.csv'), parse_dates=['click_time'], nrows=1000)
+        print('[{}]Start:read negative'.format(get_now()))
+        negative = pd.read_csv(os.path.join(DATA_DIR, 'train_negative.csv'), parse_dates=['click_time'], nrows=100000)
+        # negative_sampled = negative.sample(10000000)
+        negative_sampled = negative.copy()
+        del negative
+        gc.collect()
 
-    test_df = pd.read_csv(os.path.join(DATA_DIR, 'test.csv.zip'),
-                          parse_dates=['click_time'],
-                          compression='zip',
-                          nrows=1000)
+        test_df = pd.read_csv(os.path.join(DATA_DIR, 'test.csv.zip'),
+                              parse_dates=['click_time'],
+                              compression='zip',
+                              nrows=1000)
+    else:
+        print('[{}]Start:All data preparing'.format(get_now()))
+        print('[{}]Start:read positive'.format(get_now()))
+        positive = pd.read_csv(os.path.join(DATA_DIR, 'train_positive.csv'), parse_dates=['click_time'])
+        print('[{}]Start:read negative'.format(get_now()))
+        negative = pd.read_csv(os.path.join(DATA_DIR, 'train_negative.csv'), parse_dates=['click_time'])
+        negative_sampled = negative.sample(70000000)
+        del negative
+        gc.collect()
+
+        test_df = pd.read_csv(os.path.join(DATA_DIR, 'test.csv.zip'),
+                              parse_dates=['click_time'],
+                              compression='zip')
+
     len_train = len(negative_sampled) + len(positive)
 
     print('[{}]Finished:All data preparing'.format(get_now()))
@@ -283,8 +298,8 @@ if __name__ == '__main__':
         'metric': 'auc',
 
         'learning_rate': 0.15,
-        'num_leaves': 31,  # 2^max_depth - 1
-        'max_depth': 5,  # -1 means no limit
+        'num_leaves': 7,  # 2^max_depth - 1
+        'max_depth': 3,  # -1 means no limit
         'min_child_samples': 100,  # Minimum number of data need in a child(min_data_in_leaf)
         'max_bin': 100,  # Number of bucketed bin for feature values
         'subsample': 0.7,  # Subsample ratio of the training instance.
@@ -300,7 +315,11 @@ if __name__ == '__main__':
                                predictors=predictors)
     print('[{}]Finished:training'.format(get_now()))
 
-    sub['is_attirbuted'] = booster.predict(test_df[predictors].values, num_iteration=best_iteration)
+    print('[{}]Start:predicting'.format(get_now()))
+    sub['is_attributed'] = booster.predict(test_df[predictors].values, num_iteration=best_iteration)
+    print('[{}]Finished:predicting'.format(get_now()))
+    print('[{}]Start:output submission'.format(get_now()))
     output = os.path.join(DATA_DIR, 'submission_lgb_{0:%Y%m%d_%H%M%S}.csv.gz'.format(datetime.datetime.now()))
     sub.to_csv(output, index=False, compression='gzip')
+    print('[{}]Finished:output submission'.format(get_now()))
     print('[{}]Finished:All Process'.format(get_now()))
