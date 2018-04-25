@@ -9,11 +9,14 @@ DATA_DIR = os.path.join(PROJECT_ROOT,'data')
 MODEL_PATH = os.path.join(PROJECT_ROOT,'model')
 
 
-def create_model(merge, lgb_params):
-    X = merge.drop(['click_time', 'attributed_time', 'is_attributed'], axis=1).values
+def create_model(merge,
+                 lgb_params,
+                 categorical_features=['ip', 'app', 'os', 'channel', 'device', 'day'],
+                 predictors=[]
+                 ):
+    X = merge[predictors].values
     y = merge['is_attributed'].values
-    categorical_features = ['ip', 'app', 'os', 'channel', 'device', 'day']
-    predictors = list(set(merge.columns) - set(['attributed_time', 'click_time', 'is_attributed']))
+    #predictors=list(set(merge.columns) - set(['attributed_time', 'click_time', 'is_attributed']))
 
     lgbtrain = lgb.Dataset(X, label=y,
                            feature_name=predictors,
@@ -35,7 +38,7 @@ def create_model(merge, lgb_params):
         verbose_eval=1
     )
 
-    return booster
+    return booster, booster.best_iteration
 
 
 def preprocess(df):
@@ -52,7 +55,10 @@ def get_now():
 
 
 def predict(booster):
-    reader = pd.read_csv(os.path.join(DATA_DIR, 'test.csv'), parse_dates=['click_time'], chunksize=1000000)
+    reader = pd.read_csv(os.path.join(DATA_DIR, 'test.csv.zip'),
+                         parse_dates=['click_time'],
+                         chunksize=1000000,
+                         compression='zip')
     output = os.path.join(DATA_DIR, 'submission_lgb_{0:%Y%m%d_%H%M%S}.csv'.format(datetime.datetime.now()))
     for i, test in enumerate(reader):
         print('[{}]Start:Preprocessing Data:Size:{}'.format(get_now(), len(test)))
@@ -109,8 +115,8 @@ if __name__ == '__main__':
             'metric':'auc',
 
             'learning_rate': 0.15,
-            'num_leaves': 80,  # 2^max_depth - 1
-            'max_depth': -1,  # -1 means no limit
+            'num_leaves': 63,  # 2^max_depth - 1
+            'max_depth': 6,  # -1 means no limit
             'min_child_samples': 100,  # Minimum number of data need in a child(min_data_in_leaf)
             'max_bin': 100,  # Number of bucketed bin for feature values
             'subsample': 0.7,  # Subsample ratio of the training instance.
