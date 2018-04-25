@@ -14,7 +14,7 @@ def get_now():
     return '{0:%Y-%m-%d %H:%M:%S}'.format(now)
 
 
-def preprocess_baris(df):
+def preprocess_baris(df, bagging_mode):
     df['day'] = df.click_time.dt.day
     df['hour'] = df.click_time.dt.hour
     df['minute'] = df.click_time.dt.minute
@@ -54,7 +54,7 @@ def preprocess_baris(df):
 
         filename = 'X%d.csv' % (i)
 
-        if os.path.exists(filename):
+        if (os.path.exists(filename)) and not bagging_mode:
             if QQ == 5:
                 gp = pd.read_csv(filename, header=None)
                 df['X' + str(i)] = gp
@@ -102,7 +102,7 @@ def preprocess_baris(df):
     new_feature = 'nextClick'
     filename = 'nextClick.csv'
 
-    if os.path.exists(filename):
+    if os.path.exists(filename) and not bagging_mode:
         print('loading from save file')
         QQ = pd.read_csv(filename).values
     else:
@@ -234,7 +234,7 @@ def predict(booster):
     print('[{}]Finish:Output submission data'.format(get_now()))
 
 
-if __name__ == '__main__':
+def execute(bagging_mode, bagging_dir):
     debag_mode = False
     if debag_mode:
         print('[{}]Start:Small data preparing(DebagMode)'.format(get_now()))
@@ -247,9 +247,9 @@ if __name__ == '__main__':
         del negative
         gc.collect()
 
-        test_df = pd.read_csv(os.path.join(DATA_DIR, 'test.csv.zip'),
+        test_df = pd.read_csv(os.path.join(DATA_DIR, 'test.csv'),
                               parse_dates=['click_time'],
-                              compression='zip',
+                              # compression='zip',
                               nrows=1000)
     else:
         print('[{}]Start:All data preparing'.format(get_now()))
@@ -257,7 +257,7 @@ if __name__ == '__main__':
         positive = pd.read_csv(os.path.join(DATA_DIR, 'train_positive.csv'), parse_dates=['click_time'])
         print('[{}]Start:read negative'.format(get_now()))
         negative = pd.read_csv(os.path.join(DATA_DIR, 'train_negative.csv'), parse_dates=['click_time'])
-        negative_sampled = negative.sample(70000000)
+        negative_sampled = negative.sample(30000000)
         del negative
         gc.collect()
 
@@ -272,7 +272,7 @@ if __name__ == '__main__':
     merge = pd.concat([positive, negative_sampled, test_df])
     del positive, negative_sampled, test_df
     gc.collect()
-    merge, predictors = preprocess_baris(merge)
+    merge, predictors = preprocess_baris(merge, bagging_mode)
 
     target = 'is_attributed'
     categorical = ['app', 'device', 'os', 'channel', 'hour', 'day']
@@ -319,7 +319,26 @@ if __name__ == '__main__':
     sub['is_attributed'] = booster.predict(test_df[predictors].values, num_iteration=best_iteration)
     print('[{}]Finished:predicting'.format(get_now()))
     print('[{}]Start:output submission'.format(get_now()))
-    output = os.path.join(DATA_DIR, 'submission_lgb_{0:%Y%m%d_%H%M%S}.csv.gz'.format(datetime.datetime.now()))
+    if bagging_mode:
+        output = os.path.join(DATA_DIR,
+                              bagging_dir,
+                              'submission_lgb_{0:%Y%m%d_%H%M%S}.csv.gz'.format(datetime.datetime.now()))
+    else:
+        output = os.path.join(DATA_DIR, 'submission_lgb_{0:%Y%m%d_%H%M%S}.csv.gz'.format(datetime.datetime.now()))
     sub.to_csv(output, index=False, compression='gzip')
     print('[{}]Finished:output submission'.format(get_now()))
     print('[{}]Finished:All Process'.format(get_now()))
+
+
+if __name__ == '__main__':
+    bagging_mode = True
+
+    if bagging_mode:
+        bagging_dir = 'bagging_{0:%Y%m%d_%H%M%S}'.format(datetime.datetime.now())
+        os.mkdir(os.path.join(DATA_DIR, bagging_dir))
+        for i in range(10):
+            print('[{}]Start:Bagging Process:{}'.format(get_now(), i))
+            execute(bagging_mode, bagging_dir)
+            print('[{}]Finished:Bagging Process:{}'.format(get_now(), i))
+    else:
+        execute(bagging_mode)
