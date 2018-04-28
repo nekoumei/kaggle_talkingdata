@@ -6,13 +6,13 @@ from pathlib import Path
 
 PROJECT_ROOT = Path('.') / '..'
 DATA_DIR = PROJECT_ROOT / 'data'
-BAGGING_DIR = DATA_DIR / 'bagging'
+BAGGING_DIR = DATA_DIR / 'bagging_20180426_002417'
 
-csvs = [predicted for predicted in BAGGING_DIR.glob('*.csv')]
+csvs = [predicted for predicted in BAGGING_DIR.glob('*.csv.gz')]
 print(BAGGING_DIR.resolve())
 merge = pd.DataFrame()
 for i, predicted_csv in enumerate(csvs):
-    pred_df = pd.read_csv(predicted_csv)
+    pred_df = pd.read_csv(predicted_csv, compression='gzip')
     if i == 0:
         merge['click_id'] = pred_df['click_id']
     merge = pd.concat([merge, pred_df['is_attributed']], axis=1)

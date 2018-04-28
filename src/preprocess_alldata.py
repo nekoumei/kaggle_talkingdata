@@ -238,40 +238,30 @@ def execute(bagging_mode, bagging_dir):
     debag_mode = False
     if debag_mode:
         print('[{}]Start:Small data preparing(DebagMode)'.format(get_now()))
-        print('[{}]Start:read positive'.format(get_now()))
-        positive = pd.read_csv(os.path.join(DATA_DIR, 'train_positive.csv'), parse_dates=['click_time'], nrows=1000)
-        print('[{}]Start:read negative'.format(get_now()))
-        negative = pd.read_csv(os.path.join(DATA_DIR, 'train_negative.csv'), parse_dates=['click_time'], nrows=100000)
-        # negative_sampled = negative.sample(10000000)
-        negative_sampled = negative.copy()
-        del negative
-        gc.collect()
+        print('[{}]Start:read train'.format(get_now()))
+        train_df = pd.read_csv(os.path.join(DATA_DIR, 'train.csv.zip'), parse_dates=['click_time'], nrows=1000, compression='zip')
+        print('[{}]Start:read test'.format(get_now()))
 
-        test_df = pd.read_csv(os.path.join(DATA_DIR, 'test.csv'),
+        test_df = pd.read_csv(os.path.join(DATA_DIR, 'test.csv.zip'),
                               parse_dates=['click_time'],
-                              # compression='zip',
+                              compression='zip',
                               nrows=1000)
     else:
         print('[{}]Start:All data preparing'.format(get_now()))
-        print('[{}]Start:read positive'.format(get_now()))
-        positive = pd.read_csv(os.path.join(DATA_DIR, 'train_positive.csv'), parse_dates=['click_time'])
-        print('[{}]Start:read negative'.format(get_now()))
-        negative = pd.read_csv(os.path.join(DATA_DIR, 'train_negative.csv'), parse_dates=['click_time'])
-        negative_sampled = negative.sample(30000000)
-        del negative
-        gc.collect()
-
-        test_df = pd.read_csv(os.path.join(DATA_DIR, 'test.csv'),
-                              parse_dates=['click_time']
-                              # compression='zip'
+        print('[{}]Start:read train'.format(get_now()))
+        train_df = pd.read_csv(os.path.join(DATA_DIR, 'train.csv.zip'), parse_dates=['click_time'], compression='zip')
+        print('[{}]Start:read test'.format(get_now()))
+        test_df = pd.read_csv(os.path.join(DATA_DIR, 'test.csv.zip'),
+                              parse_dates=['click_time'],
+                              compression='zip'
                                )
 
-    len_train = len(negative_sampled) + len(positive)
+    len_train = len(train_df)
 
     print('[{}]Finished:All data preparing'.format(get_now()))
 
-    merge = pd.concat([positive, negative_sampled, test_df])
-    del positive, negative_sampled, test_df
+    merge = pd.concat([train_df, test_df])
+    del test_df
     gc.collect()
     merge, predictors = preprocess_baris(merge, bagging_mode)
 
