@@ -221,7 +221,8 @@ if __name__ == '__main__':
     print('[{}]Finished:Prepare Data For Final Prediction'.format(get_now()))
     # Output merged DataFrame
     merged = pd.concat([X_merged, y_merged], axis=1)
-    merged.to_csv(os.path.join(DATA_DIR, 'merged_lgb_semis_{0:%Y%m%d_%H%M%S}.csv.gz'.format(datetime.datetime.now())))
+    merged.to_csv(os.path.join(DATA_DIR, 'merged_lgb_semis_{0:%Y%m%d_%H%M%S}.csv.gz'.format(datetime.datetime.now())),
+                  index=False)
     del merged
     gc.collect()
 
