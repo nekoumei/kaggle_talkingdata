@@ -219,6 +219,11 @@ if __name__ == '__main__':
     X_merged = pd.concat([train, X_conf], axis=0, ignore_index=True)
     y_merged = pd.concat([y_train_gen, y_conf.iloc[:, 0]], axis=0, ignore_index=True)
     print('[{}]Finished:Prepare Data For Final Prediction'.format(get_now()))
+    # Output merged DataFrame
+    merged = pd.concat([X_merged, y_merged], axis=1)
+    merged.to_csv(os.path.join(DATA_DIR, 'merged_lgb_semis_{0:%Y%m%d_%H%M%S}.csv.gz'.format(datetime.datetime.now())))
+    del merged
+    gc.collect()
 
     # final prediction
     print('[{}]Start:Final Prediction'.format(get_now()))
