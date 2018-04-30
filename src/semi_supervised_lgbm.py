@@ -224,9 +224,9 @@ if __name__ == '__main__':
     print('[{}]Start:Read test'.format(get_now()))
     test = pd.read_csv('../data/preprocesssed_test.csv.gz',
                        compression='gzip')
+    click_ids = test.click_id.values
     test = test[features]
     print('[{}]Finished:Read test'.format(get_now()))
-    click_ids = test.click_id.values
 
     sub = pd.DataFrame()
     sub['click_id'] = click_ids
