@@ -97,7 +97,7 @@ def pseudo_labeling(X_train, y_train, X_test, max_iter=1, th_confidence=0.95):
     return X_conf, y_conf
 
 
-def get_proba_lgbm(X, y, X_test):
+def get_proba_lgbm(X, y, X_test, max_depth=3, num_leaves=7, is_sub=False):
     target = 'is_attributed'
     categorical = ['app', 'device', 'os', 'channel', 'hour']
     lgb_params = {
@@ -106,8 +106,8 @@ def get_proba_lgbm(X, y, X_test):
         'objective': 'binary',
         'metric': 'auc',
         # 'is_unbalance': 'true', # replaced with scale_pos_weight argument
-        'num_leaves': 7,  # 2^max_depth - 1
-        'max_depth': 3,  # -1 means no limit
+        'num_leaves': num_leaves,  # 2^max_depth - 1
+        'max_depth': max_depth,  # -1 means no limit
         'min_child_samples': 100,  # Minimum number of data need in a child(min_data_in_leaf)
         'max_bin': 100,  # Number of bucketed bin for feature values
         'subsample': 0.7,  # Subsample ratio of the training instance.
@@ -121,10 +121,15 @@ def get_proba_lgbm(X, y, X_test):
                            feature_name=features,
                            categorical_feature=categorical
                            )
-    lgbvalid = lgb.Dataset(valid[features].values, label=valid[target].values,
-                           feature_name=features,
-                           categorical_feature=categorical
-                           )
+    if not is_sub:
+        lgbvalid = lgb.Dataset(valid[features].values, label=valid[target].values,
+                               feature_name=features,
+                               categorical_feature=categorical
+                               )
+        valid_names = 'valid'
+    else:
+        lgbvalid = lgbtrain
+        valid_names = 'train'
 
     evals_results = {}
     num_boost_round = 200
@@ -134,7 +139,7 @@ def get_proba_lgbm(X, y, X_test):
         lgb_params,
         lgbtrain,
         valid_sets=[lgbvalid],
-        valid_names=['valid'],
+        valid_names=[valid_names],
         evals_result=evals_results,
         num_boost_round=num_boost_round,
         early_stopping_rounds=early_stopping_rounds,
