@@ -222,7 +222,8 @@ if __name__ == '__main__':
     # Output merged DataFrame
     merged = pd.concat([X_merged, y_merged], axis=1)
     merged.to_csv(os.path.join(DATA_DIR, 'merged_lgb_semis_{0:%Y%m%d_%H%M%S}.csv.gz'.format(datetime.datetime.now())),
-                  index=False)
+                  index=False,
+                  compression='gzip')
     del merged
     gc.collect()
 
