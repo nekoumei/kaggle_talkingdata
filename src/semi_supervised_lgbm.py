@@ -157,7 +157,6 @@ if __name__ == '__main__':
                         compression='gzip')
     print('[{}]Finished:Read All Data'.format(get_now()))
 
-    click_ids = test.click_id.values
     # preprocess
     print('[{}]Start:Data Preprocessing'.format(get_now()))
 
@@ -226,8 +225,9 @@ if __name__ == '__main__':
     test = pd.read_csv('../data/preprocesssed_test.csv.gz',
                        compression='gzip')
     print('[{}]Finished:Read test'.format(get_now()))
+    click_ids = test.click_id.values
 
-    sub = pd.DataFrame
+    sub = pd.DataFrame()
     sub['click_id'] = click_ids
     sub['is_attributed'] = get_proba_lgbm(X_merged.values, y_merged.values, test.values)
     print('[{}]Finished:Final Prediction'.format(get_now()))
