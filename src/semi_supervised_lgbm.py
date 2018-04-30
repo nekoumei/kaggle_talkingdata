@@ -15,7 +15,7 @@ def get_now():
     return '{0:%Y-%m-%d %H:%M:%S}'.format(now)
 
 
-def pseudo_labeling(X_train, y_train, X_test, max_iter=100, th_confidence=0.95):
+def pseudo_labeling(X_train, y_train, X_test, max_iter=30, th_confidence=0.95):
     """
     Extract test data with enough confidence and conduct pseudo-labeling.
 
