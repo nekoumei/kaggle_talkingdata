@@ -230,6 +230,7 @@ if __name__ == '__main__':
 
     sub = pd.DataFrame()
     sub['click_id'] = click_ids
+    sub.click_id = sub.click_id.astype(int)
     sub['is_attributed'] = get_proba_lgbm(X_merged.values, y_merged.values, test.values)
     print('[{}]Finished:Final Prediction'.format(get_now()))
 
@@ -238,6 +239,7 @@ if __name__ == '__main__':
     output = os.path.join(DATA_DIR, 'sub_lgb_semis_{0:%Y%m%d_%H%M%S}.csv.gz'.format(datetime.datetime.now()))
     sub.to_csv(output,
                index=False,
-               compression='gzip')
+               compression='gzip',
+               float_format='%.9f')
     print('[{}]Finished:Output Submission Data'.format(get_now()))
     print('[{}]Finished:All Process'.format(get_now()))
