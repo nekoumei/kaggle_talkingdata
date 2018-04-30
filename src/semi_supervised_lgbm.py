@@ -213,7 +213,7 @@ if __name__ == '__main__':
 
     # execute semi-supervised learning
     print('[{}]Start:Semi-Supervised Learning'.format(get_now()))
-    X_conf, y_conf = pl.pseudo_labeling(train, y_train_gen, test)
+    X_conf, y_conf = pseudo_labeling(train, y_train_gen, test)
     print('[{}]Finished:Semi-Supervised Learning'.format(get_now()))
     print('[{}]Start:Prepare Data For Final Prediction'.format(get_now()))
     X_merged = pd.concat([train, X_conf], axis=0, ignore_index=True)
@@ -224,7 +224,7 @@ if __name__ == '__main__':
     print('[{}]Start:Final Prediction'.format(get_now()))
     sub = pd.DataFrame
     sub['click_id'] = click_ids
-    sub['is_attributed'] = get_proba_lgbm(X_merged.values, y_merged.values, X_test.values)
+    sub['is_attributed'] = get_proba_lgbm(X_merged.values, y_merged.values, test.values)
     print('[{}]Finished:Final Prediction'.format(get_now()))
 
     # output sub
