@@ -146,15 +146,20 @@ def get_proba_lgbm(X, y, X_test):
 
 if __name__ == '__main__':
     # read files
+    print('[{}]Start:Read train'.format(get_now()))
     train = pd.read_csv('../data/preprocesssed_train.csv.gz',
                         compression='gzip')
+    print('[{}]Start:Read test'.format(get_now()))
     test = pd.read_csv('../data/preprocesssed_test.csv.gz',
                        compression='gzip')
+    print('[{}]Start:Read valid'.format(get_now()))
     valid = pd.read_csv('../data/preprocesssed_val.csv.gz',
                         compression='gzip')
+    print('[{}]Finished:Read All Data'.format(get_now()))
 
     click_ids = test.click_id.values
     # preprocess
+    print('[{}]Start:Data Preprocessing'.format(get_now()))
 
     features = list(set(['app',
                          'app_by_channel_countuniq',
@@ -204,18 +209,29 @@ if __name__ == '__main__':
 
     y_train_gen = y_train_gen.astype(int)
 
+    print('[{}]Finished:Data Preprocessing'.format(get_now()))
+
     # execute semi-supervised learning
+    print('[{}]Start:Semi-Supervised Learning'.format(get_now()))
     X_conf, y_conf = pl.pseudo_labeling(train, y_train_gen, test)
+    print('[{}]Finished:Semi-Supervised Learning'.format(get_now()))
+    print('[{}]Start:Prepare Data For Final Prediction'.format(get_now()))
     X_merged = pd.concat([train, X_conf], axis=0, ignore_index=True)
     y_merged = pd.concat([y_train_gen, y_conf.iloc[:, 0]], axis=0, ignore_index=True)
+    print('[{}]Finished:Prepare Data For Final Prediction'.format(get_now()))
 
     # final prediction
+    print('[{}]Start:Final Prediction'.format(get_now()))
     sub = pd.DataFrame
     sub['click_id'] = click_ids
     sub['is_attributed'] = get_proba_lgbm(X_merged.values, y_merged.values, X_test.values)
+    print('[{}]Finished:Final Prediction'.format(get_now()))
 
     # output sub
+    print('[{}]Start:Output Submission Data'.format(get_now()))
     output = os.path.join(DATA_DIR, 'sub_lgb_semis_{0:%Y%m%d_%H%M%S}.csv.gz'.format(datetime.datetime.now()))
     sub.to_csv(output,
                index=False,
                compression='gzip')
+    print('[{}]Finished:Output Submission Data'.format(get_now()))
+    print('[{}]Finished:All Process'.format(get_now()))
