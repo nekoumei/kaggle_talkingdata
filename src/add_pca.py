@@ -152,6 +152,7 @@ if __name__ == '__main__':
 
     print('[{}]Start:merge train, test and valid'.format(get_now()))
     merge = pd.concat([X_train, X_test, X_valid], axis=0, ignore_index=True)
+    merge.columns = features
     del X_train, X_test, X_valid
     gc.collect()
     print('[{}]Finished:merge train, test and valid'.format(get_now()))
