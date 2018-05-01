@@ -168,15 +168,11 @@ if __name__ == '__main__':
     drop_features = categorical.copy()
     drop_features.extend(pca_col)
     print('[{}]Finished:PCA'.format(get_now()))
-    merge = pd.concat([merge, aft_pca], axis=1, ignore_index=True)
-    features.extend(pca_col)
-    print(merge.columns)
-    merge.columns = features
-    print(merge.columns)
     merge.drop(not_categorical, axis=1, inplace=True)
-    print(merge.columns)
+    merge = pd.concat([merge, aft_pca], axis=1, ignore_index=True)
     features = drop_features
-    print('STOP')
+    print(features)
+    print(merge.columns)
 
 
 
