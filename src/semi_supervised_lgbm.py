@@ -66,9 +66,9 @@ def pseudo_labeling(X_train, y_train, X_test, max_iter=1, th_confidence=0.95):
                                 columns=["probability"])
 
             conf_index = df_prob[df_prob.probability > th_confidence].index
-            conf2_index = df_prob[df_prob.probability < 1 - th_confidence].index
+            # conf2_index = df_prob[df_prob.probability < 1 - th_confidence].index
             print(conf_index)
-            print(conf2_index)
+            # print(conf2_index)
 
             X_conf_ = X_test[X_test.index.isin(conf_index)]
             # X_conf2_ = X_test[X_test.index.isin(conf2_index)]
@@ -85,7 +85,7 @@ def pseudo_labeling(X_train, y_train, X_test, max_iter=1, th_confidence=0.95):
             y_conf = pd.concat([y_conf, y_conf_], axis=0)
 
             X_test.drop(conf_index, axis=0, inplace=True)
-            X_test.drop(conf2_index, axis=0, inplace=True)
+            # X_test.drop(conf2_index, axis=0, inplace=True)
 
             continu = X_conf_.shape[0]# + X_conf2_.shape[0]
 
