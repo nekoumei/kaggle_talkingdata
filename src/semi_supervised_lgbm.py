@@ -71,27 +71,27 @@ def pseudo_labeling(X_train, y_train, X_test, max_iter=1, th_confidence=0.95):
             print(conf2_index)
 
             X_conf_ = X_test[X_test.index.isin(conf_index)]
-            X_conf2_ = X_test[X_test.index.isin(conf2_index)]
+            # X_conf2_ = X_test[X_test.index.isin(conf2_index)]
 
             y_conf_ = DataFrame(index=X_conf_.index)
             y_conf_.index.names = y_train.index.names
             y_conf_[y_train.columns[0]] = 1
 
-            y_conf2_ = DataFrame(index=X_conf2_.index)
-            y_conf2_.index.names = y_train.index.names
-            y_conf2_[y_train.columns[0]] = 0
+            #y_conf2_ = DataFrame(index=X_conf2_.index)
+            #y_conf2_.index.names = y_train.index.names
+            #y_conf2_[y_train.columns[0]] = 0
 
-            X_conf = pd.concat([X_conf, X_conf_, X_conf2_], axis=0)
-            y_conf = pd.concat([y_conf, y_conf_, y_conf2_], axis=0)
+            X_conf = pd.concat([X_conf, X_conf_], axis=0)
+            y_conf = pd.concat([y_conf, y_conf_], axis=0)
 
             X_test.drop(conf_index, axis=0, inplace=True)
             X_test.drop(conf2_index, axis=0, inplace=True)
 
-            continu = X_conf_.shape[0] + X_conf2_.shape[0]
+            continu = X_conf_.shape[0]# + X_conf2_.shape[0]
 
             print(str(continu) + " samples with enough confidence were found at this iteration.")
 
-    del X, y, X_train, y_train, X_test, X_conf_, y_conf_, X_conf2_, y_conf2_
+    del X, y, X_train, y_train, X_test, X_conf_, y_conf_#, X_conf2_, y_conf2_
     print("Finished!")
 
     return X_conf, y_conf
