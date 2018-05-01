@@ -158,7 +158,7 @@ if __name__ == '__main__':
     from sklearn.decomposition import PCA
     pca = PCA(n_components=10)
     bef_pca = merge[not_categorical]
-    aft_pca = pca.fit_transform(bef.as_matrix())
+    aft_pca = pca.fit_transform(bef_pca.as_matrix())
     print('[{}]Finished:PCA'.format(get_now()))
     merge = pd.concat([merge, aft_pca], axis=1, ignore_index=True)
 
@@ -189,7 +189,7 @@ if __name__ == '__main__':
     X_train = merge.iloc[:len_X_train, :]
     X_test = merge.iloc[len_X_train:len_X_train + len_X_test, :]
     X_valid = merge.iloc[len_X_train + len_X_test:, :]
-    del merge, categorical_df
+    del merge, bef_pca, aft_pca
     gc.collect()
 
     print('[{}]Finished:Data Preprocessing'.format(get_now()))
