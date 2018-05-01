@@ -153,6 +153,7 @@ if __name__ == '__main__':
     print('[{}]Start:merge train, test and valid'.format(get_now()))
     merge = pd.concat([X_train, X_test, X_valid], axis=0, ignore_index=True)
     merge.columns = features
+    print(merge.columns)
     del X_train, X_test, X_valid
     gc.collect()
     print('[{}]Finished:merge train, test and valid'.format(get_now()))
@@ -164,10 +165,14 @@ if __name__ == '__main__':
     bef_pca.fillna(0, inplace=True)
     aft_pca = pd.DataFrame(pca.fit_transform(bef_pca.as_matrix()))
     pca_col = ['PC' + str(i) for i in range(10)]
-    features = categorical
-    features.extend(pca_col)
+    drop_features = categorical.copy()
+    drop_features.extend(pca_col)
     print('[{}]Finished:PCA'.format(get_now()))
     merge = pd.concat([merge, aft_pca], axis=1, ignore_index=True)
+    features.extend(pca_col)
+    print(merge.columns)
+    merge.columns = features
+    print(merge.columns)
     merge.drop(not_categorical, axis=1, inplace=True)
 
 
