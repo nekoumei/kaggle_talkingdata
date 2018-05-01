@@ -190,6 +190,7 @@ if __name__ == '__main__':
     X_train = merge.iloc[:len_X_train, :]
     X_test = merge.iloc[len_X_train:len_X_train + len_X_test, :]
     X_valid = merge.iloc[len_X_train + len_X_test:, :]
+    valid = pd.concat([X_valid, y_valid], axis=1)
     del merge, bef_pca, aft_pca
     gc.collect()
 
