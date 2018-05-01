@@ -17,6 +17,7 @@ def get_now():
 
 def get_proba_lgbm(X, y, X_test, max_depth=3, num_leaves=7, is_sub=False):
     target = 'is_attributed'
+    categorical = ['app', 'device', 'os', 'channel', 'hour']
     lgb_params = {
         'learning_rate': 0.10,
         'boosting_type': 'gbdt',
@@ -143,6 +144,9 @@ if __name__ == '__main__':
     y_train = y_train.astype(int)
 
     categorical = ['app', 'device', 'os', 'channel', 'hour']
+    not_categorical = list(set(features) - set(categorical))
+    print('not categorical:')
+    print(not_categorical)
 
     print('[{}]Start:merge train, test and valid'.format(get_now()))
     merge = pd.concat([X_train, X_test, X_valid], axis=0, ignore_index=True)
@@ -150,28 +154,38 @@ if __name__ == '__main__':
     gc.collect()
     print('[{}]Finished:merge train, test and valid'.format(get_now()))
 
-    print('[{}]Start:Type Changing int to str'.format(get_now()))
-    categorical_df = merge[categorical].copy()
-    categorical_df = categorical_df.astype(str)
-    print('[{}]Finished:Type Changing int to str'.format(get_now()))
+    print('[{}]Start:PCA'.format(get_now()))
+    from sklearn.decomposition import PCA
+    pca = PCA(n_components=10)
+    bef_pca = merge[not_categorical]
+    aft_pca = pca.fit_transform(bef.as_matrix())
+    print('[{}]Finished:PCA'.format(get_now()))
+    merge = pd.concat([merge, aft_pca], axis=1, ignore_index=True)
 
-    print('[{}]Start:Selection dummies(using value_counts())'.format(get_now()))
-    app_vc = categorical_df.app.value_counts().sort_values(ascending=False).index.tolist()[:1000]
-    dev_vc = categorical_df.device.value_counts().sort_values(ascending=False).index.tolist()[:1000]
-    os_vc = categorical_df.os.value_counts().sort_values(ascending=False).index.tolist()[:1000]
-    cha_vc = categorical_df.channel.value_counts().sort_values(ascending=False).index.tolist()[:1000]
-    print('[{}]Finished:Selection dummies(using value_counts())'.format(get_now()))
-    print('[{}]Start:replaceTop1000'.format(get_now()))
-    categorical_df.app = categorical_df.app.apply(lambda x: x if x in app_vc else '-1')
-    categorical_df.device = categorical_df.device.apply(lambda x: x if x in dev_vc else '-1')
-    categorical_df.os = categorical_df.os.apply(lambda x: x if x in os_vc else '-1')
-    categorical_df.channel = categorical_df.channel.apply(lambda x: x if x in cha_vc else '-1')
-    print('[{}]Finished:replaceTop1000'.format(get_now()))
-    print('[{}]Start:get dummies'.format(get_now()))
-    categorical_df = pd.get_dummies(categorical_df)
-    merge.drop(categorical, axis=1, inplace=True)
-    merge = pd.concat([merge, categorical_df], axis=1, ignore_index=True)
-    print('[{}]Finished:get dummies'.format(get_now()))
+
+
+ #   print('[{}]Start:Type Changing int to str'.format(get_now()))
+ #   categorical_df = merge[categorical].copy()
+ #   categorical_df = categorical_df.astype(str)
+ #   print('[{}]Finished:Type Changing int to str'.format(get_now()))
+#
+ #   print('[{}]Start:Selection dummies(using value_counts())'.format(get_now()))
+ #   app_vc = categorical_df.app.value_counts().sort_values(ascending=False).index.tolist()[:1000]
+ #   dev_vc = categorical_df.device.value_counts().sort_values(ascending=False).index.tolist()[:1000]
+ #   os_vc = categorical_df.os.value_counts().sort_values(ascending=False).index.tolist()[:1000]
+ #   cha_vc = categorical_df.channel.value_counts().sort_values(ascending=False).index.tolist()[:1000]
+ #   print('[{}]Finished:Selection dummies(using value_counts())'.format(get_now()))
+ #   print('[{}]Start:replaceTop1000'.format(get_now()))
+ #   categorical_df.app = categorical_df.app.apply(lambda x: x if x in app_vc else '-1')
+ #   categorical_df.device = categorical_df.device.apply(lambda x: x if x in dev_vc else '-1')
+ #   categorical_df.os = categorical_df.os.apply(lambda x: x if x in os_vc else '-1')
+ #   categorical_df.channel = categorical_df.channel.apply(lambda x: x if x in cha_vc else '-1')
+ #   print('[{}]Finished:replaceTop1000'.format(get_now()))
+ #   print('[{}]Start:get dummies'.format(get_now()))
+ #   categorical_df = pd.get_dummies(categorical_df)
+ #   merge.drop(categorical, axis=1, inplace=True)
+ #   merge = pd.concat([merge, categorical_df], axis=1, ignore_index=True)
+ #   print('[{}]Finished:get dummies'.format(get_now()))
     X_train = merge.iloc[:len_X_train, :]
     X_test = merge.iloc[len_X_train:len_X_train + len_X_test, :]
     X_valid = merge.iloc[len_X_train + len_X_test:, :]
