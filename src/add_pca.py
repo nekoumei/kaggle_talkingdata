@@ -163,9 +163,11 @@ if __name__ == '__main__':
     bef_pca.fillna(0, inplace=True)
     aft_pca = pd.DataFrame(pca.fit_transform(bef_pca.as_matrix()))
     pca_col = ['PC' + str(i) for i in range(10)]
+    features = categorical
     features.extend(pca_col)
     print('[{}]Finished:PCA'.format(get_now()))
     merge = pd.concat([merge, aft_pca], axis=1, ignore_index=True)
+    merge.drop(not_categorical, axis=1, inplace=True)
 
 
 
