@@ -15,7 +15,7 @@ def get_now():
     return '{0:%Y-%m-%d %H:%M:%S}'.format(now)
 
 
-def get_proba_lgbm(X, y, X_test, max_depth=3, num_leaves=7, is_sub=False):
+def get_proba_lgbm(X, y, X_test,X_valid, y_valid, max_depth=3, num_leaves=7, is_sub=False):
     target = 'is_attributed'
     categorical = ['app', 'device', 'os', 'channel', 'hour']
     lgb_params = {
@@ -39,7 +39,7 @@ def get_proba_lgbm(X, y, X_test, max_depth=3, num_leaves=7, is_sub=False):
                            categorical_feature=categorical
                            )
     if not is_sub:
-        lgbvalid = lgb.Dataset(valid[features].values, label=valid[target].values,
+        lgbvalid = lgb.Dataset(X_valid, label=y_valid,
                                categorical_feature=categorical
                                )
         valid_names = 'valid'
@@ -190,7 +190,7 @@ if __name__ == '__main__':
     X_train = merge.iloc[:len_X_train, :]
     X_test = merge.iloc[len_X_train:len_X_train + len_X_test, :]
     X_valid = merge.iloc[len_X_train + len_X_test:, :]
-    valid = pd.concat([X_valid, y_valid], axis=1)
+    # valid = pd.concat([X_valid, y_valid], axis=1)
     del merge, bef_pca, aft_pca
     gc.collect()
 
@@ -203,7 +203,8 @@ if __name__ == '__main__':
     sub = pd.DataFrame()
     sub['click_id'] = click_ids
     sub.click_id = sub.click_id.astype(int)
-    sub['is_attributed'] = get_proba_lgbm(X_train.values, y_train.values, X_test.values)
+    sub['is_attributed'] = get_proba_lgbm(X_train.values, y_train.values, X_test.values,
+                                          X_valid.values, y_valid.values)
     print('[{}]Finished:Final Prediction'.format(get_now()))
 
     # output sub
