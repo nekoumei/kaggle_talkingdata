@@ -36,10 +36,12 @@ def get_proba_lgbm(X, y, X_test,X_valid, y_valid, max_depth=3, num_leaves=7, is_
     }
 
     lgbtrain = lgb.Dataset(X, label=y,
+                           feature_name=feature_name,
                            categorical_feature=categorical
                            )
     if not is_sub:
         lgbvalid = lgb.Dataset(X_valid, label=y_valid,
+                               feature_name=feature_name,
                                categorical_feature=categorical
                                )
         valid_names = 'valid'
@@ -191,6 +193,7 @@ if __name__ == '__main__':
     X_test = merge.iloc[len_X_train:len_X_train + len_X_test, :]
     X_valid = merge.iloc[len_X_train + len_X_test:, :]
     # valid = pd.concat([X_valid, y_valid], axis=1)
+    feature_name = X_train.columns.tolist()
     del merge, bef_pca, aft_pca
     gc.collect()
 
