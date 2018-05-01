@@ -174,6 +174,7 @@ if __name__ == '__main__':
     merge.columns = features
     print(merge.columns)
     merge.drop(not_categorical, axis=1, inplace=True)
+    features = drop_features
 
 
 
