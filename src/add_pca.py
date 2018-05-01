@@ -159,7 +159,7 @@ if __name__ == '__main__':
     pca = PCA(n_components=10)
     bef_pca = merge[not_categorical]
     bef_pca.fillna(0, inplace=True)
-    aft_pca = pca.fit_transform(bef_pca.as_matrix())
+    aft_pca = pd.DataFrame(pca.fit_transform(bef_pca.as_matrix()))
     print('[{}]Finished:PCA'.format(get_now()))
     merge = pd.concat([merge, aft_pca], axis=1, ignore_index=True)
 
