@@ -78,6 +78,7 @@ cbc = CatBoostClassifier(
     scale_pos_weight=200,
     use_best_model=True,
     max_depth=3,
+    bootstrap_type='Poisson',
     subsample=0.7
 )
 cbc.fit(
