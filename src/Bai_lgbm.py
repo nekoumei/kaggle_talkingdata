@@ -95,7 +95,7 @@ def lgb_modelfit_nocv(dtrain, dvalid, predictors, target='target', feval=None, e
         'min_split_gain': 0,  # lambda_l1, lambda_l2 and min_gain_to_split to regularization
         'reg_alpha': 0,  # L1 regularization term on weights
         'reg_lambda': 0,  # L2 regularization term on weights
-        'nthread': 4,
+        'nthread': 24,
     # should be equal to REAL cores:http://xgboost.readthedocs.io/en/latest/how_to/external_memory.html
         'verbose': 0
         #         'device': 'gpu',
