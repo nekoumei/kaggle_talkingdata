@@ -347,7 +347,8 @@ def DO(frm, to, fileno):
     del test_df
     if not debug:
         print("writing...")
-        sub.to_csv('./data/sub_bai_%d.csv' % (fileno), index=False, float_format='%.9f')
+        sub.to_csv('../data/sub_bai_%d.csv.gz' % (fileno), index=False, float_format='%.9f',
+                   compression='gzip')
     del sub
     gc.collect()
     print("All done...")
