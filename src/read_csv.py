@@ -34,8 +34,9 @@ def read_preprocessed_csvs(debug=True):
         test = pd.read_csv('../data/preprocesssed_test.csv.gz',
                            nrows=10000,
                            compression='gzip')
-        print('[{}]Start:Read valid'.format(get_now()))
+        print('[{}]Start:Debug:Read valid'.format(get_now()))
         valid = pd.read_csv('../data/preprocesssed_val.csv.gz',
+                            nrows=10000,
                             compression='gzip')
 
     print('[{}]Finished:Read All Data'.format(get_now()))
