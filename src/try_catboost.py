@@ -72,11 +72,13 @@ categorical_idx = [columns_list.index(cat) for cat in categorical]
 print(categorical_idx)
 print(X_train.columns.tolist())
 cbc = CatBoostClassifier(
-    iterations=500,
-    learning_rate=0.10,
+    iterations=300,
+    learning_rate=0.1,
     eval_metric='AUC',
     scale_pos_weight=200,
-    use_best_model=True
+    use_best_model=True,
+    max_depth=3,
+    subsample=0.7
 )
 cbc.fit(
     X_train,
