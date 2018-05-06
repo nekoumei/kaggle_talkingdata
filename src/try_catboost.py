@@ -73,7 +73,7 @@ print(categorical_idx)
 print(X_train.columns.tolist())
 cbc = CatBoostClassifier(
     iterations=300,
-    learning_rate=0.1,
+    learning_rate=0.3,
     eval_metric='AUC',
     scale_pos_weight=200,
     use_best_model=True,
