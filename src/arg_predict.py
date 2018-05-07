@@ -11,7 +11,7 @@ BAGGING_DIR = DATA_DIR / 'bagging_20180426_002417'
 # csvs = [predicted for predicted in BAGGING_DIR.glob('*.csv.gz')]
 csvs = [
     DATA_DIR / 'sub_bai_6.csv.gz',
-    DATA_DIR / 'sub_lgb_semis_20180501_124039.csv.gz'
+    DATA_DIR / 'sub_lgb_semis_20180501_124039.csv.gz',
     DATA_DIR / 'submission_lgb_20180428_160430.csv.gz'
 ]
 print(BAGGING_DIR.resolve())
