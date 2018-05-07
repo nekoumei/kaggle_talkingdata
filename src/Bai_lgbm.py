@@ -92,8 +92,8 @@ def lgb_modelfit_nocv(dtrain, dvalid, predictors, target='target', feval=None, e
     # Minimum sum of instance weight(hessian) needed in a child(leaf),default=1e-3,Like min_data_in_leaf, it can be used to deal with over-fitting
         'subsample_for_bin': 200000,  # Number of samples for constructing bin
         'min_split_gain': 0,  # lambda_l1, lambda_l2 and min_gain_to_split to regularization
-        'reg_alpha': 0,  # L1 regularization term on weights
-        'reg_lambda': 0,  # L2 regularization term on weights
+        'reg_alpha': 0.5,  # L1 regularization term on weights
+        'reg_lambda': 0.5,  # L2 regularization term on weights
         'nthread': 24,
     # should be equal to REAL cores:http://xgboost.readthedocs.io/en/latest/how_to/external_memory.html
         'verbose': 0
